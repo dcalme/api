@@ -1,15 +1,16 @@
 // const mysql = require('mysql2');
 const mysql = require('mysql2/promise');
+const { db } = require('./config.json');
 
 const table = 'dev_records';
 
 async function getDbInstance() {
   try {
     return await mysql.createConnection({
-      host: 'localhost',
-      user: 'adloox',
-      password: 'adloox',
-      database: 'housework',
+      host: db.host,
+      user: db.user,
+      password: db.password,
+      database: db.database,
     });
   } catch (error) {
     console.error(`Error getDbInstance function ${error.message}`);
@@ -43,7 +44,6 @@ async function getIndex() { // Get all tasks + last time and who made it
   try {
     const connection = await getDbInstance();
     const [rows, fields] = await connection.execute('SELECT task_name, profil, DATE_FORMAT(date, "%d/%c/%Y") as date FROM `tasks` ORDER BY task_name ASC');
-    console.log(fields);
     await connection.end();
     // console.log(rows);
     return rows;
