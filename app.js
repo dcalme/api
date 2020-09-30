@@ -1,11 +1,13 @@
 // Modules
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const mysql = require('./queries');
 
 // Set-up express app
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 app.disable('x-powered-by');
 
 app.get('/', (req, res) => { // Index Page
@@ -16,11 +18,12 @@ app.get('/', (req, res) => { // Index Page
 });
 
 app.post('/lol', (req, res) => {
-  // console.log(Object.keys(req));
-  // console.log(req.headers);
-  // console.log(req.body);
-  res.status(201);
-  res.send('Ok');
+  // Check params
+  mysql.insertData().then((data) => {
+    console.log(data);
+    res.status(201);
+    res.send('Ok');
+  });
 });
 
 app.listen(3000, () => {
