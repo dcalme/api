@@ -52,8 +52,18 @@ async function getIndex() { // Get all tasks + last time and who made it
   }
 }
 
+async function getWeek() {
+  return 'week';
+}
+
+async function getMonth() {
+  return 'month';
+}
+
 module.exports = {
   insertData,
   getIndex,
   updateTask,
+  getWeek,
+  getMonth,
 };

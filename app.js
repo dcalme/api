@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('./queries');
+const { port } = require('./config');
 
 // Set-up express app
 const app = express();
@@ -17,7 +18,7 @@ app.get('/', (req, res) => { // Index Page
   });
 });
 
-app.post('/lol', (req, res) => {
+app.post('/', (req, res) => { // Insert Task
   // Check params
   mysql.insertData().then((data) => {
     console.log(data);
@@ -26,6 +27,22 @@ app.post('/lol', (req, res) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log(`Example app listening at http://localhost:${3000}`);
+app.get('/week', (req, res) => {
+  mysql.getWeek().then((data) => {
+    console.log(data);
+    res.status(200);
+    res.send('Ok');
+  });
+});
+
+app.get('/month', (req, res) => {
+  mysql.getMonth().then((data) => {
+    console.log(data);
+    res.status(200);
+    res.send('Ok');
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
 });
