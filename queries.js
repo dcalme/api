@@ -43,7 +43,7 @@ async function updateTask(data) {
 async function getIndex() { // Get all tasks + last time and who made it
   try {
     const connection = await getDbInstance();
-    const [rows, fields] = await connection.execute('SELECT task_name, profil, DATE_FORMAT(date, "%d/%c/%Y") as date FROM `tasks` ORDER BY task_name ASC');
+    const [rows, fields] = await connection.execute('SELECT task_name, profil, svg, DATE_FORMAT(date, "%d/%c/%Y") as date FROM `tasks` ORDER BY task_name ASC');
     await connection.end();
     return rows;
   } catch (error) {
