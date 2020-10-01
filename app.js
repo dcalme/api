@@ -19,8 +19,8 @@ app.get('/', (req, res) => { // Index Page
 });
 
 app.post('/', (req, res) => { // Insert Task
-  // Check params
-  mysql.insertData().then((data) => {
+  console.log(req.body);
+  mysql.insertData(req.body).then((data) => {
     console.log(data);
     res.status(201);
     res.send('Ok');
@@ -28,10 +28,10 @@ app.post('/', (req, res) => { // Insert Task
 });
 
 app.get('/week', (req, res) => {
-  mysql.getWeek().then((data) => {
+  mysql.tasksOverPeriod('week').then((data) => {
     console.log(data);
     res.status(200);
-    res.send('Ok');
+    res.json(data);
   });
 });
 

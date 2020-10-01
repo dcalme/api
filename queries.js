@@ -22,7 +22,10 @@ async function getDbInstance() {
 async function insertData(data) {
   try {
     const connection = await getDbInstance();
-    await connection.execute(`INSERT INTO ${table} (profil, tasks, date) VALUES(?, ?, CURDATE())`, [data.profil, data.task]);
+    const { task, profil } = data;
+    for (let i = 0; i < task.length; i++) {
+      await connection.execute(`INSERT INTO ${table} (profil, tasks, date) VALUES(?, ?, CURDATE())`, [profil, task[i]]);
+    }
     await connection.end();
   } catch (error) {
     console.log('Error from insertData', error);
@@ -52,8 +55,38 @@ async function getIndex() { // Get all tasks + last time and who made it
   }
 }
 
+
+async function tasksOverPeriod(period) {
+  try { // every tasks group by profil
+    const connection = await getDbInstance();
+    const [tasks] = await connection.execute('SELECT task_name as value FROM tasks ORDER BY task_name ASC');
+    let obj = {};
+    for(let i = 0; i < tasks.length; i++) {
+      let expr = "%" + tasks[i].value + "%";
+      if(period === "week") {
+        let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 7 DAY GROUP BY profil', [expr])
+        obj[tasks[i].value] = temp
+      }
+      else if(period === "month") {
+        let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 30 DAY GROUP BY profil', [expr])
+        obj[tasks[i].value] = temp 
+      }
+      else {
+        let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? GROUP BY profil', [expr])
+        obj[tasks[i].value] = temp
+      }      
+    }
+    await connection.end();
+    return obj;
+  }
+  catch(error) {
+    console.log(`Error from tasksOverPeriod function, ${error}`);
+  }
+}
+
+
 async function getWeek() {
-  return 'week';
+  
 }
 
 async function getMonth() {
@@ -66,4 +99,5 @@ module.exports = {
   updateTask,
   getWeek,
   getMonth,
+  tasksOverPeriod,
 };
