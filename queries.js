@@ -1,5 +1,6 @@
 // const mysql = require('mysql2');
 const mysql = require('mysql2/promise');
+const mysql2 = require('mysql2');
 const { db } = require('./config.json');
 
 const table = 'dev_records';
@@ -18,15 +19,43 @@ async function getDbInstance() {
   }
 }
 
+async function getRegularDbInstance() {
+  try {
+    const connection = mysql2.createConnection({
+      host: db.host,
+      user: db.user,
+      password: db.password,
+      database: db.database,
+    });
+    return connection;
+  } catch (error) {
+    console.error(`Error getRegularDbInstance function ${error.message}`);
+  }
+}
+
+
+function getCurrentDay() {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+  today = yyyy + '-' + mm + '-' + dd;
+  return today;
+}
+
 // Insert task checked
 async function insertData(data) {
   try {
     const connection = await getDbInstance();
     const { task, profil } = data;
+    let value = [];
     for (let i = 0; i < task.length; i++) {
-      await connection.execute(`INSERT INTO ${table} (profil, tasks, date) VALUES(?, ?, CURDATE())`, [profil, task[i]]);
+      value.push([profil, task[i], getCurrentDay()]);
     }
-    await connection.end();
+    console.log(value);
+    const query = await connection.query('INSERT INTO dev_records(profil, tasks, date) VALUES ? ',[value]);
+    console.log(query);
+    return query;
   } catch (error) {
     console.log('Error from insertData', error);
   }
