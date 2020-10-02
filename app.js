@@ -19,9 +19,7 @@ app.get('/', (req, res) => { // Index Page
 });
 
 app.post('/', (req, res) => { // Insert Task
-  console.log(req.body);
   mysql.insertData(req.body).then((data) => {
-    console.log(data);
     res.status(201);
     res.send('Ok');
   });
@@ -44,5 +42,5 @@ app.get('/month', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`App listening at http://localhost:${port}`);
 });
