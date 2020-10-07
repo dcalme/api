@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('./queries');
+const utils = require('./utils');
 const { port } = require('./config');
 
 // Set-up express app
@@ -19,9 +20,10 @@ app.get('/', (req, res) => { // Index Page
 });
 
 app.post('/', (req, res) => { // Insert Task
-  mysql.insertData(req.body).then((data) => {
+  const params = utils.prepareQueryParams(req.body);
+  mysql.insertData(params).then((data) => {
     res.status(201);
-    res.send('Ok');
+    res.send(data);
   });
 });
 

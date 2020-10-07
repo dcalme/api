@@ -8,6 +8,15 @@ function getCurrentDay() {
   return today;
 }
 
+function prepareQueryParams(data) {
+  const { task, profil } = data;
+  let value = [];
+  for (let i = 0; i < task.length; i++) {
+    value.push([profil, task[i], getCurrentDay()]);
+  }
+  return value;
+}
+
 module.exports = {
-  getCurrentDay
+  prepareQueryParams
 }

@@ -1,7 +1,6 @@
 // const mysql = require('mysql2');
 const mysql = require('mysql2/promise');
 const { db } = require('./config.json');
-const utils = require('./utils');
 
 const table = 'dev_records';
 
@@ -23,28 +22,10 @@ async function getDbInstance() {
 async function insertData(data) {
   try {
     const connection = await getDbInstance();
-    const { task, profil } = data;
-    let value = [];
-    for (let i = 0; i < task.length; i++) {
-      value.push([profil, task[i], utils.getCurrentDay()]);
-    }
-    console.log(value);
     const query = await connection.query('INSERT INTO dev_records(profil, tasks, date) VALUES ? ',[value]);
-    console.log(query);
     return query;
   } catch (error) {
     console.log('Error from insertData', error);
-  }
-}
-
-async function updateTask(data) {
-  try {
-    // Update records.tasks (last time & profil)
-    const connection = await getDbInstance();
-    await connection.execute('UPDATE `tasks` SET date = CURDATE(), profil = ? WHERE task_name = ?', [data.profil, data.task]);
-    await connection.end();
-  } catch (error) {
-    console.log('Error from updateTask function', error);
   }
 }
 
@@ -61,33 +42,33 @@ async function getIndex() { // Get all tasks + last time and who made it
 }
 
 
-async function tasksOverPeriod(period) {
-  try { // every tasks group by profil
-    const connection = await getDbInstance();
-    const [tasks] = await connection.execute('SELECT task_name as value FROM tasks ORDER BY task_name ASC');
-    let obj = {};
-    for(let i = 0; i < tasks.length; i++) {
-      let expr = "%" + tasks[i].value + "%";
-      if(period === "week") {
-        let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 7 DAY GROUP BY profil', [expr])
-        obj[tasks[i].value] = temp
-      }
-      else if(period === "month") {
-        let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 30 DAY GROUP BY profil', [expr])
-        obj[tasks[i].value] = temp 
-      }
-      else {
-        let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? GROUP BY profil', [expr])
-        obj[tasks[i].value] = temp
-      }      
-    }
-    await connection.end();
-    return obj;
-  }
-  catch(error) {
-    console.log(`Error from tasksOverPeriod function, ${error}`);
-  }
-}
+// async function tasksOverPeriod(period) {
+//   try { // every tasks group by profil
+//     const connection = await getDbInstance();
+//     const [tasks] = await connection.execute('SELECT task_name as value FROM tasks ORDER BY task_name ASC');
+//     let obj = {};
+//     for(let i = 0; i < tasks.length; i++) {
+//       let expr = "%" + tasks[i].value + "%";
+//       if(period === "week") {
+//         let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 7 DAY GROUP BY profil', [expr])
+//         obj[tasks[i].value] = temp
+//       }
+//       else if(period === "month") {
+//         let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 30 DAY GROUP BY profil', [expr])
+//         obj[tasks[i].value] = temp 
+//       }
+//       else {
+//         let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? GROUP BY profil', [expr])
+//         obj[tasks[i].value] = temp
+//       }      
+//     }
+//     await connection.end();
+//     return obj;
+//   }
+//   catch(error) {
+//     console.log(`Error from tasksOverPeriod function, ${error}`);
+//   }
+// }
 
 async function getWeek() {
   return 'week';
