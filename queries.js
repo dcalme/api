@@ -41,48 +41,124 @@ async function getIndex() { // Get all tasks + last time and who made it
   }
 }
 
-
-// async function tasksOverPeriod(period) {
-//   try { // every tasks group by profil
-//     const connection = await getDbInstance();
-//     const [tasks] = await connection.execute('SELECT task_name as value FROM tasks ORDER BY task_name ASC');
-//     let obj = {};
-//     for(let i = 0; i < tasks.length; i++) {
-//       let expr = "%" + tasks[i].value + "%";
-//       if(period === "week") {
-//         let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 7 DAY GROUP BY profil', [expr])
-//         obj[tasks[i].value] = temp
-//       }
-//       else if(period === "month") {
-//         let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? AND `date` >= DATE(NOW()) - INTERVAL 30 DAY GROUP BY profil', [expr])
-//         obj[tasks[i].value] = temp 
-//       }
-//       else {
-//         let [temp, fields] = await connection.execute('SELECT COUNT(id) as count, profil from records WHERE tasks LIKE ? GROUP BY profil', [expr])
-//         obj[tasks[i].value] = temp
-//       }      
-//     }
-//     await connection.end();
-//     return obj;
-//   }
-//   catch(error) {
-//     console.log(`Error from tasksOverPeriod function, ${error}`);
-//   }
-// }
-
-async function getWeek() {
-  return 'week';
+async function getProfils() {
+  try { // return all profils
+    let res = []
+    const connection = await getDbInstance();
+    const [profils, fields] = await connection.execute("SELECT name from profils");
+    profils.forEach(element => {
+      res.push(element.name);
+    });
+    await connection.end();
+    return res;
+  } catch (error) {
+    console.log(`Error from getProfils function : ${error}`);
+  }
 }
 
-async function getMonth() {
-  return 'month';
+async function tasksOverWeek() { 
+  try {
+    const profils = await getProfils();
+    const connection = await getDbInstance();
+    let res = [];
+    for(const profil of profils) {
+      let [tasks, fields] = await connection.execute("SELECT COUNT(tasks) as count, tasks FROM records WHERE profil = ? AND date >= DATE(NOW()) - INTERVAL 7 DAY GROUP BY tasks", [profil]);
+      res.push(tasks);
+    }
+    return res;
+  }
+  catch(error) {
+    console.log(`Error from tasksOverWeek function : ${error}`)
+  }
+}
+
+async function tasksOverMonth() { 
+  try {
+    const profils = await getProfils();
+    const connection = await getDbInstance();
+    let res = [];
+    for(const profil of profils) {
+      let [tasks, fields] = await connection.execute("SELECT COUNT(tasks) as count, tasks FROM records WHERE profil = ? AND date >= DATE(NOW()) - INTERVAL 30 DAY GROUP BY tasks", [profil]);
+      res.push(tasks);
+    }
+    return res;
+  }
+  catch(error) {
+    console.log(`Error from tasksOverMonth function : ${error}`)
+  }
+}
+
+async function tasksOverStart() { 
+  try {
+    const profils = await getProfils();
+    const connection = await getDbInstance();
+    let res = [];
+    for(const profil of profils) {
+      let [tasks, fields] = await connection.execute("SELECT COUNT(tasks) as count, tasks FROM records WHERE profil = ? GROUP BY tasks", [profil]);
+      res.push(tasks);
+    }
+    return res;
+  }
+  catch(error) {
+    console.log(`Error from tasksOverSart function : ${error}`)
+  }
+}
+
+async function pointsOverWeek() {
+  try { // Points by profil over a week
+    const profils = await getProfils();
+    const connection = await getDbInstance();
+    let res = [];
+    for(const profil of profils) {
+      let [score, fields] = await connection.execute("SELECT IFNULL(SUM(tasks.points),0) as score FROM records INNER JOIN tasks ON records.tasks = tasks.task_name WHERE records.date >= DATE(NOW()) - INTERVAL 7 DAY AND records.profil = ?", [profil]);
+      res.push(score);
+    }
+    return res;
+  }
+  catch(error) {
+    console.log(`Error from pointsOverWeek function : ${error}`)
+  }
+}
+
+async function pointsOverMonth() {
+  try { 
+    const profils = await getProfils();
+    const connection = await getDbInstance();
+    let res = [];
+    for(const profil of profils) {
+      let [score, fields] = await connection.execute("SELECT IFNULL(SUM(tasks.points),0) as score FROM records INNER JOIN tasks ON records.tasks = tasks.task_name WHERE records.date >= DATE(NOW()) - INTERVAL 30 DAY AND records.profil = ?", [profil]);
+      res.push(score);
+    }
+    return res;
+  }
+  catch(error) {
+    console.log(`Error from pointsOverMonth function : ${error}`)
+  }
+}
+
+async function pointsOverStart() {
+  try {
+    const profils = await getProfils();
+    const connection = await getDbInstance();
+    let res = [];
+    for(const profil of profils) {
+      let [score, fields] = await connection.execute("SELECT IFNULL(SUM(tasks.points),0) as score FROM records INNER JOIN tasks ON records.tasks = tasks.task_name WHERE records.profil = ?", [profil]);
+      res.push(score);
+    }
+    return res;
+  }
+  catch(error) {
+    console.log(`Error from pointsOverStart function : ${error}`)
+  }
 }
 
 module.exports = {
   insertData,
   getIndex,
-  updateTask,
-  getWeek,
-  getMonth,
-  tasksOverPeriod,
+  tasksOverWeek,
+  pointsOverWeek,
+  tasksOverMonth,
+  pointsOverMonth,
+  tasksOverStart,
+  pointsOverStart
 };

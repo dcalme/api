@@ -28,18 +28,20 @@ app.post('/', (req, res) => { // Insert Task
 });
 
 app.get('/week', (req, res) => {
-  mysql.tasksOverPeriod('week').then((data) => {
-    console.log(data);
-    res.status(200);
-    res.json(data);
+  mysql.tasksOverWeek().then((data) => {
+    mysql.pointsOverWeek().then((score) => {
+      res.status(200);
+      res.json([data, score]);
+    });
   });
 });
 
 app.get('/month', (req, res) => {
-  mysql.getMonth().then((data) => {
-    console.log(data);
-    res.status(200);
-    res.send('Ok');
+  mysql.tasksOverMonth().then((data) => {
+    mysql.pointsOverMonth().then((score) => {
+      res.status(200);
+      res.json([data, score]);
+    });
   });
 });
 
