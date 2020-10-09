@@ -56,15 +56,33 @@ async function getProfils() {
   }
 }
 
-async function tasksOverWeek() { 
+async function getTasks() {
   try {
-    const profils = await getProfils();
     const connection = await getDbInstance();
     let res = [];
-    for(const profil of profils) {
-      let [tasks, fields] = await connection.execute("SELECT COUNT(tasks) as count, tasks FROM records WHERE profil = ? AND date >= DATE(NOW()) - INTERVAL 7 DAY GROUP BY tasks", [profil]);
-      res.push(tasks);
-    }
+    const [rows, fields] = await connection.execute("SELECT task_name from tasks ORDER BY task_name ASC");
+    await connection.end();
+    rows.map(element => {
+      res.push(element.task_name);
+    });
+    return res;
+  } catch(error) {
+    console.log(`Error from getTasks function : ${error}`);
+  }
+}
+
+async function tasksOverWeek() { 
+  try {
+    const connection = await getDbInstance();
+    const tasks = await getTasks();
+    let res = [];
+    for (const task of tasks) {
+      const [row, field] = await connection.query("SELECT profil, count(id) as nb from records WHERE tasks LIKE ? AND date >= DATE(NOW()) - INTERVAL 7 DAY GROUP BY profil", [task]);
+      res.push({
+        name: task,
+        score: row,
+      });
+    }    
     return res;
   }
   catch(error) {
@@ -74,13 +92,16 @@ async function tasksOverWeek() {
 
 async function tasksOverMonth() { 
   try {
-    const profils = await getProfils();
     const connection = await getDbInstance();
+    const tasks = await getTasks();
     let res = [];
-    for(const profil of profils) {
-      let [tasks, fields] = await connection.execute("SELECT COUNT(tasks) as count, tasks FROM records WHERE profil = ? AND date >= DATE(NOW()) - INTERVAL 30 DAY GROUP BY tasks", [profil]);
-      res.push(tasks);
-    }
+    for (const task of tasks) {
+      const [row, field] = await connection.query("SELECT profil, count(id) as nb from records WHERE tasks LIKE ? AND date >= DATE(NOW()) - INTERVAL 30 DAY GROUP BY profil", [task]);
+      res.push({
+        name: task,
+        score: row,
+      });
+    }    
     return res;
   }
   catch(error) {
@@ -90,13 +111,16 @@ async function tasksOverMonth() {
 
 async function tasksOverStart() { 
   try {
-    const profils = await getProfils();
     const connection = await getDbInstance();
+    const tasks = await getTasks();
     let res = [];
-    for(const profil of profils) {
-      let [tasks, fields] = await connection.execute("SELECT COUNT(tasks) as count, tasks FROM records WHERE profil = ? GROUP BY tasks", [profil]);
-      res.push(tasks);
-    }
+    for (const task of tasks) {
+      const [row, field] = await connection.query("SELECT profil, count(id) as nb from records WHERE tasks LIKE ? GROUP BY profil", [task]);
+      res.push({
+        name: task,
+        score: row,
+      });
+    }    
     return res;
   }
   catch(error) {

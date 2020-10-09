@@ -45,6 +45,15 @@ app.get('/month', (req, res) => {
   });
 });
 
+app.get('/start', (req, res) => {
+  mysql.tasksOverStart().then((data) => {
+    mysql.pointsOverStart().then((score) => {
+      res.status(200);
+      res.json([data, score]);
+    });
+  });
+});
+
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
