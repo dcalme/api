@@ -54,6 +54,20 @@ app.get('/start', (req, res) => {
   });
 });
 
+app.get('/tasks', (req, res) => {
+ mysql.getTasks().then((data) => {
+  res.status(200);
+  res.json(data);
+ });
+});
+
+app.get('/profils', (req, res) => {
+ mysql.getProfils().then((data) => {
+  res.status(200);
+  res.json(data);
+ });
+});
+
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });

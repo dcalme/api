@@ -184,5 +184,8 @@ module.exports = {
   tasksOverMonth,
   pointsOverMonth,
   tasksOverStart,
-  pointsOverStart
+  pointsOverStart,
+  getTasks,
+  getProfils,
+
 };
