@@ -1,9 +1,13 @@
-// Modules
+// NPM Modules
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+
+// Lib
 const mysql = require('./queries');
 const utils = require('./utils');
+
+// Config
 const { port } = require('./config');
 
 // Set-up express app
@@ -55,17 +59,17 @@ app.get('/start', (req, res) => {
 });
 
 app.get('/tasks', (req, res) => {
- mysql.getTasks().then((data) => {
-  res.status(200);
-  res.json(data);
- });
+  mysql.getTasks().then((data) => {
+    res.status(200);
+    res.json(data);
+  });
 });
 
 app.get('/profils', (req, res) => {
- mysql.getProfils().then((data) => {
-  res.status(200);
-  res.json(data);
- });
+  mysql.getProfils().then((data) => {
+    res.status(200);
+    res.json(data);
+  });
 });
 
 app.listen(port, () => {
