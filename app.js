@@ -72,6 +72,12 @@ app.get('/profils', (req, res) => {
   });
 });
 
+app.post('/create_user', (req, res) => {
+  // Add create user SQL query
+  res.status(2001);
+  res.json('User Created');
+});
+
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
