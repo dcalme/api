@@ -73,9 +73,17 @@ app.get('/profils', (req, res) => {
 });
 
 app.post('/create_user', (req, res) => {
-  // Add create user SQL query
-  res.status(2001);
-  res.json('User Created');
+  mysql.createProfil(req.body.name).then((data) => {
+    res.status(201);
+    res.json(data);
+  });
+});
+
+app.post('/delete_user', (req, res) => {
+  mysql.deleteProfil(req.body.id).then((data) => {
+    res.status(201);
+    res.json(data);
+  });
 });
 
 app.listen(port, () => {
