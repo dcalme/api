@@ -72,6 +72,13 @@ app.get('/profils', (req, res) => {
   });
 });
 
+app.get('/monthEvolution', (req, res) => {
+  mysql.monthEvolution().then((data) => {
+    res.status(200);
+    res.json(data);
+  });
+});
+
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
