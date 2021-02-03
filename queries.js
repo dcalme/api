@@ -1,8 +1,3 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable array-callback-return */
-/* eslint-disable no-unused-vars */
-/* eslint-disable consistent-return */
 // Modules
 const mysql = require('mysql2/promise');
 
@@ -187,9 +182,16 @@ async function monthEvolution() {
     const profils = await getProfils();
     const connection = await getDbInstance();
     const res = [];
-    const [row, field] = await connection.execute('SELECT IFNULL(SUM(tasks.points),0)AS score,DATE_FORMAT(records.date,"%Y-%M") as date FROM records INNER JOIN tasks ON records.tasks=tasks.task_name WHERE records.profil="darius" GROUP BY YEAR(records.date),MONTH(records.date)');
+    for (const profil of profils) {
+      const obj = {};
+      const [row, field] = await connection.execute('SELECT IFNULL(SUM(tasks.points),0)AS score,DATE_FORMAT(records.date,"%Y-%M") as date FROM records INNER JOIN tasks ON records.tasks=tasks.task_name WHERE records.profil= ? GROUP BY YEAR(records.date),MONTH(records.date)', [profil]);
+      obj.name = profil;
+      obj.data = row.map((element) => parseInt(element.score, 10));
+      obj.period = row.map((element) => element.date);
+      res.push(obj);
+    }
     await connection.end();
-    return row;
+    return res;
   } catch (error) {
     console.log(`Error from monthEvolution function : ${error}`);
   }
