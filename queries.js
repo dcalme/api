@@ -184,7 +184,7 @@ async function monthEvolution() {
     const res = [];
     for (const profil of profils) {
       const obj = {};
-      const [row, field] = await connection.execute('SELECT IFNULL(SUM(tasks.points),0)AS score,DATE_FORMAT(records.date,"%Y-%M") as date FROM records INNER JOIN tasks ON records.tasks=tasks.task_name WHERE records.profil= ? GROUP BY YEAR(records.date),MONTH(records.date)', [profil]);
+      const [row, field] = await connection.execute('SELECT IFNULL(SUM(tasks.points),0)AS score,DATE_FORMAT(records.date,"%M %Y") as date FROM records INNER JOIN tasks ON records.tasks=tasks.task_name WHERE records.profil= ? GROUP BY YEAR(records.date),MONTH(records.date)', [profil]);
       obj.name = profil;
       obj.data = row.map((element) => parseInt(element.score, 10));
       obj.period = row.map((element) => element.date);
